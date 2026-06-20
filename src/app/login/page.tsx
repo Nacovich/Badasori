@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import { Anchor } from 'lucide-react'
+import Link from 'next/link'
 
 export default function LoginPage() {
   const [email, setEmail] = useState('')
@@ -19,7 +20,7 @@ export default function LoginPage() {
     const { error } = await supabase.auth.signInWithPassword({ email, password })
 
     if (error) {
-      setError('Email o contraseña incorrectos')
+      setError(error.message)
       setLoading(false)
     } else {
       window.location.href = '/'
@@ -85,6 +86,13 @@ export default function LoginPage() {
           >
             {loading ? 'Entrando...' : 'Entrar'}
           </button>
+
+          <Link
+            href="/auth/forgot-password"
+            className="block text-center text-sm text-slate-500 hover:text-slate-300 transition-colors"
+          >
+            ¿Olvidaste tu contraseña?
+          </Link>
         </form>
 
         <p className="text-center text-slate-600 text-xs mt-8">
