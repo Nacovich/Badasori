@@ -49,6 +49,7 @@ export default async function MantenimientoDetailPage({
               { label: 'Estado', value: MAINTENANCE_STATUS_LABEL[item.status] },
               { label: 'Fecha prevista', value: formatDate(item.due_date) },
               { label: 'Periodicidad', value: item.periodicity ?? '—' },
+              { label: 'Importe', value: item.cost != null ? `${item.cost.toFixed(2)} €` : '—' },
               { label: 'Notas', value: item.notes ?? '—' },
             ].map(({ label, value }) => (
               <div key={label} className="flex justify-between px-4 py-3 gap-4">

@@ -40,6 +40,7 @@ export interface MaintenanceItem {
   due_engine_hours: number | null
   periodicity: string | null
   status: 'pending' | 'in_progress' | 'completed'
+  cost: number | null
   notes: string | null
   created_at: string
 }

@@ -84,6 +84,17 @@ export function MaintenanceForm({ action, item }: Props) {
         />
       )}
 
+      <Input
+        id="cost"
+        name="cost"
+        label="Importe (€)"
+        type="number"
+        min="0"
+        step="0.01"
+        defaultValue={item?.cost?.toString() ?? ''}
+        placeholder="0.00"
+      />
+
       <Textarea
         id="notes"
         name="notes"

@@ -36,6 +36,7 @@ export async function createMaintenanceItem(
     due_engine_hours: num(formData, 'due_engine_hours'),
     periodicity: str(formData, 'periodicity'),
     status: 'pending',
+    cost: num(formData, 'cost'),
     notes: str(formData, 'notes'),
   })
 
@@ -66,6 +67,7 @@ export async function updateMaintenanceItem(
       due_engine_hours: num(formData, 'due_engine_hours'),
       periodicity: str(formData, 'periodicity'),
       status: str(formData, 'status') ?? 'pending',
+      cost: num(formData, 'cost'),
       notes: str(formData, 'notes'),
     })
     .eq('id', id)
