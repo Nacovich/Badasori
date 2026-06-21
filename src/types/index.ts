@@ -66,6 +66,7 @@ export interface Expense {
   category: string
   amount: number
   provider: string | null
+  paid_by: string | null
   notes: string | null
   created_at: string
 }

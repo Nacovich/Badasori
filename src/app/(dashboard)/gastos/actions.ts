@@ -34,6 +34,7 @@ export async function createExpense(
     category: str(formData, 'category') ?? 'otros',
     amount,
     provider: str(formData, 'provider'),
+    paid_by: str(formData, 'paid_by'),
     notes: str(formData, 'notes'),
   })
 
@@ -67,6 +68,7 @@ export async function updateExpense(
       category: str(formData, 'category') ?? 'otros',
       amount,
       provider: str(formData, 'provider'),
+      paid_by: str(formData, 'paid_by'),
       notes: str(formData, 'notes'),
     })
     .eq('id', id)

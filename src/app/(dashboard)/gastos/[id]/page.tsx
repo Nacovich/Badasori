@@ -48,6 +48,7 @@ export default async function GastoDetailPage({
             { label: 'Concepto', value: item.concept },
             { label: 'Categoría', value: EXPENSE_CATEGORY_LABEL[item.category] ?? item.category },
             { label: 'Importe', value: formatCurrency(item.amount) },
+            { label: 'Pagado por', value: item.paid_by ?? '—' },
             { label: 'Proveedor', value: item.provider ?? '—' },
             { label: 'Notas', value: item.notes ?? '—' },
           ].map(({ label, value }) => (

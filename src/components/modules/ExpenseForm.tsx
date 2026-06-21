@@ -65,6 +65,14 @@ export function ExpenseForm({ action, item }: Props) {
       />
 
       <Input
+        id="paid_by"
+        name="paid_by"
+        label="Pagado por"
+        defaultValue={item?.paid_by ?? ''}
+        placeholder="Nombre de quien paga"
+      />
+
+      <Input
         id="provider"
         name="provider"
         label="Proveedor"
