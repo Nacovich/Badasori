@@ -2,6 +2,7 @@ import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
 import { TopBar } from '@/components/layout/TopBar'
 import { BottomNav } from '@/components/layout/BottomNav'
+import { RevalidateOnFocus } from '@/components/RevalidateOnFocus'
 import type { Profile } from '@/types'
 
 export default async function DashboardLayout({
@@ -32,6 +33,7 @@ export default async function DashboardLayout({
         <div className="max-w-2xl mx-auto px-4 py-4">{children}</div>
       </main>
       <BottomNav />
+      <RevalidateOnFocus />
     </div>
   )
 }
