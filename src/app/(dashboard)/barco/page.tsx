@@ -1,6 +1,7 @@
 import { createClient } from '@/lib/supabase/server'
 import { Card, CardHeader, CardTitle } from '@/components/ui/Card'
 import { EmptyState } from '@/components/ui/EmptyState'
+import { AttachmentSection } from '@/components/modules/AttachmentSection'
 import { formatNumber } from '@/lib/utils'
 import { Anchor } from 'lucide-react'
 
@@ -62,6 +63,16 @@ export default async function BoatPage() {
           ))}
         </dl>
       </Card>
+
+      <AttachmentSection
+        entityType="boat"
+        entityId={String(boat.id)}
+        boatId={String(boat.id)}
+        canEdit={membership?.role !== 'viewer'}
+        canDelete={membership?.role === 'admin'}
+        returnUrl="/barco"
+        title="Fotos del barco"
+      />
 
       <p className="text-xs text-slate-400 text-center">
         Rol en este barco: <strong className="text-slate-600">{membership?.role}</strong>

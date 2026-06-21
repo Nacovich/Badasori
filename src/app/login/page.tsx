@@ -35,7 +35,7 @@ export default function LoginPage() {
           <div className="bg-sky-500 rounded-2xl p-4 mb-4">
             <Anchor className="w-10 h-10 text-white" />
           </div>
-          <h1 className="text-2xl font-bold text-white">Barco Manager</h1>
+          <h1 className="text-2xl font-bold text-white">Boat Manager</h1>
           <p className="text-slate-400 text-sm mt-1">Acceso privado</p>
         </div>
 

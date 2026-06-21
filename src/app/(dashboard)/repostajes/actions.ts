@@ -36,6 +36,7 @@ export async function createFuelLog(
     total_cost: parseFloat(total.toFixed(2)),
     engine_hours: formData.get('engine_hours') ? parseFloat(formData.get('engine_hours') as string) : null,
     location: str(formData, 'location'),
+    paid_by: str(formData, 'paid_by'),
     notes: str(formData, 'notes'),
   })
 
@@ -71,6 +72,7 @@ export async function updateFuelLog(
       total_cost: parseFloat(total.toFixed(2)),
       engine_hours: formData.get('engine_hours') ? parseFloat(formData.get('engine_hours') as string) : null,
       location: str(formData, 'location'),
+      paid_by: str(formData, 'paid_by'),
       notes: str(formData, 'notes'),
     })
     .eq('id', id)

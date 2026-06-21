@@ -95,6 +95,14 @@ export function FuelForm({ action, item }: Props) {
         placeholder="Ej: Gasolinera del puerto"
       />
 
+      <Input
+        id="paid_by"
+        name="paid_by"
+        label="Pagado por"
+        defaultValue={item?.paid_by ?? ''}
+        placeholder="Nombre de quien paga"
+      />
+
       <Textarea
         id="notes"
         name="notes"

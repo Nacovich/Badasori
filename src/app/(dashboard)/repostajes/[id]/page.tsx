@@ -3,6 +3,7 @@ import { createClient } from '@/lib/supabase/server'
 import { getBoatMembership } from '@/lib/boat'
 import { PageHeader } from '@/components/ui/PageHeader'
 import { FuelForm } from '@/components/modules/FuelForm'
+import { AttachmentSection } from '@/components/modules/AttachmentSection'
 import { ConfirmDeleteButton } from '@/components/ui/ConfirmDeleteButton'
 import { updateFuelLog, deleteFuelLog } from '../actions'
 import { formatDate, formatCurrency, formatNumber } from '@/lib/utils'
@@ -48,6 +49,7 @@ export default async function RepostajeDetailPage({
             { label: 'Total', value: formatCurrency(item.total_cost) },
             { label: 'Horas motor', value: item.engine_hours != null ? `${item.engine_hours} h` : '—' },
             { label: 'Lugar', value: item.location ?? '—' },
+            { label: 'Pagado por', value: item.paid_by ?? '—' },
             { label: 'Notas', value: item.notes ?? '—' },
           ].map(({ label, value }) => (
             <div key={label} className="flex justify-between px-4 py-3 gap-4">
@@ -57,6 +59,15 @@ export default async function RepostajeDetailPage({
           ))}
         </dl>
       )}
+
+      <AttachmentSection
+        entityType="fuel_log"
+        entityId={id}
+        boatId={membership.boat_id}
+        canEdit={editor}
+        canDelete={admin}
+        returnUrl={`/repostajes/${id}`}
+      />
 
       {admin && (
         <ConfirmDeleteButton

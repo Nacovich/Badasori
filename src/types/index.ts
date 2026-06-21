@@ -80,6 +80,7 @@ export interface FuelLog {
   total_cost: number
   engine_hours: number | null
   location: string | null
+  paid_by: string | null
   notes: string | null
   created_at: string
 }
@@ -118,7 +119,7 @@ export interface FishingLog {
   created_at: string
 }
 
-export type AttachmentEntityType = 'repair' | 'expense' | 'trip' | 'fishing_log' | 'document'
+export type AttachmentEntityType = 'repair' | 'expense' | 'trip' | 'fishing_log' | 'document' | 'boat' | 'fuel_log'
 
 export interface Attachment {
   id: string

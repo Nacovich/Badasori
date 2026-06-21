@@ -3,13 +3,13 @@ import './globals.css'
 import { PwaRegister } from '@/components/PwaRegister'
 
 export const metadata: Metadata = {
-  title: 'Barco Manager',
+  title: 'Boat Manager',
   description: 'Gestión del día a día de tu barco',
   manifest: '/manifest.json',
   appleWebApp: {
     capable: true,
     statusBarStyle: 'default',
-    title: 'Barco Manager',
+    title: 'Boat Manager',
   },
 }
 

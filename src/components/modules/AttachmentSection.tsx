@@ -12,6 +12,7 @@ interface Props {
   canEdit: boolean
   canDelete: boolean
   returnUrl: string
+  title?: string
 }
 
 export async function AttachmentSection({
@@ -21,6 +22,7 @@ export async function AttachmentSection({
   canEdit,
   canDelete,
   returnUrl,
+  title = 'Adjuntos',
 }: Props) {
   const supabase = await createClient()
 
@@ -44,7 +46,7 @@ export async function AttachmentSection({
     <section className="bg-white rounded-2xl border border-slate-100 shadow-sm p-4 space-y-3">
       <div className="flex items-center justify-between">
         <h3 className="font-semibold text-slate-900 text-sm">
-          Adjuntos
+          {title}
           {attachments.length > 0 && (
             <span className="ml-1.5 text-slate-400 font-normal">({attachments.length})</span>
           )}

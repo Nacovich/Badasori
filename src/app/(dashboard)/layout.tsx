@@ -28,7 +28,7 @@ export default async function DashboardLayout({
 
   return (
     <div className="flex flex-col h-full">
-      <TopBar title="Barco Manager" profile={profile as Profile | null} />
+      <TopBar title="Boat Manager" profile={profile as Profile | null} />
       <main className="flex-1 overflow-y-auto pb-20">
         <div className="max-w-2xl mx-auto px-4 py-4">{children}</div>
       </main>
