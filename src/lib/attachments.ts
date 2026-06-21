@@ -19,8 +19,8 @@ export async function uploadAttachment(
   if (!membership || membership.role === 'viewer') return { error: 'Sin permisos para subir archivos' }
   if (membership.boat_id !== boatId) return { error: 'Acceso denegado' }
 
-  const file = formData.get('file') as File | null
-  if (!file || file.size === 0) return { error: 'Selecciona un archivo' }
+  const file = (formData.getAll('file') as File[]).find((f) => f.size > 0) ?? null
+  if (!file) return { error: 'Selecciona un archivo' }
   if (file.size > 10 * 1024 * 1024) return { error: 'El archivo no puede superar 10 MB' }
 
   const supabase = await createClient()

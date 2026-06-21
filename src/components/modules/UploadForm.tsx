@@ -11,42 +11,48 @@ interface Props {
 export function UploadForm({ uploadAction }: Props) {
   const [state, formAction, pending] = useActionState(uploadAction, {})
   const router = useRouter()
-  const inputRef = useRef<HTMLInputElement>(null)
+  const galleryRef = useRef<HTMLInputElement>(null)
+  const cameraRef = useRef<HTMLInputElement>(null)
 
   useEffect(() => {
     if (state.success) {
       router.refresh()
-      if (inputRef.current) inputRef.current.value = ''
+      if (galleryRef.current) galleryRef.current.value = ''
+      if (cameraRef.current) cameraRef.current.value = ''
     }
   }, [state.success, router])
 
-  function openGallery() {
-    if (!inputRef.current) return
-    inputRef.current.removeAttribute('capture')
-    inputRef.current.accept = 'image/*,.pdf,.doc,.docx,.xls,.xlsx,.txt'
-    inputRef.current.click()
-  }
-
-  function openCamera() {
-    if (!inputRef.current) return
-    inputRef.current.setAttribute('capture', 'environment')
-    inputRef.current.accept = 'image/*'
-    inputRef.current.click()
+  function handleChange(e: React.ChangeEvent<HTMLInputElement>) {
+    if (e.target.files?.length) e.target.form?.requestSubmit()
   }
 
   const btnBase =
-    'inline-flex items-center gap-1.5 px-3 py-2 rounded-xl text-sm font-medium border transition-colors'
+    'inline-flex items-center gap-1.5 px-3 py-2 rounded-xl text-sm font-medium border transition-colors cursor-pointer select-none'
 
   return (
     <form action={formAction}>
+      {/* Input galería */}
       <input
-        ref={inputRef}
+        ref={galleryRef}
+        id="upload-gallery"
         type="file"
         name="file"
         className="hidden"
-        onChange={(e) => {
-          if (e.target.files?.length) e.target.form?.requestSubmit()
-        }}
+        accept="image/*,.pdf,.doc,.docx,.xls,.xlsx,.txt"
+        onChange={handleChange}
+        disabled={pending}
+      />
+      {/* Input cámara */}
+      <input
+        ref={cameraRef}
+        id="upload-camera"
+        type="file"
+        name="file"
+        className="hidden"
+        accept="image/*"
+        // @ts-expect-error — capture is valid HTML but missing from React types
+        capture="environment"
+        onChange={handleChange}
         disabled={pending}
       />
 
@@ -58,22 +64,20 @@ export function UploadForm({ uploadAction }: Props) {
           </span>
         ) : (
           <>
-            <button
-              type="button"
-              onClick={openGallery}
+            <label
+              htmlFor="upload-gallery"
               className={`${btnBase} bg-white border-slate-200 text-blue-600 hover:bg-blue-50 active:bg-blue-100`}
             >
               <span className="text-base">📎</span>
               Adjuntar
-            </button>
-            <button
-              type="button"
-              onClick={openCamera}
+            </label>
+            <label
+              htmlFor="upload-camera"
               className={`${btnBase} bg-white border-slate-200 text-green-600 hover:bg-green-50 active:bg-green-100`}
             >
               <span className="text-base">📷</span>
               Foto
-            </button>
+            </label>
           </>
         )}
       </div>
