@@ -50,7 +50,6 @@ export function UploadForm({ uploadAction }: Props) {
         name="file"
         className="hidden"
         accept="image/*"
-        // @ts-expect-error — capture is valid HTML but missing from React types
         capture="environment"
         onChange={handleChange}
         disabled={pending}
