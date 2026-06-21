@@ -119,8 +119,12 @@ export default async function GastosPage({
                       </Badge>
                       <span className="text-xs text-slate-400">{formatDate(item.date)}</span>
                     </div>
-                    {item.provider != null && (
-                      <p className="text-xs text-slate-400 mt-0.5">{item.provider}</p>
+                    {(item.provider != null || item.paid_by != null) && (
+                      <p className="text-xs text-slate-400 mt-0.5">
+                        {item.provider}
+                        {item.provider != null && item.paid_by != null && ' · '}
+                        {item.paid_by != null && `Paga: ${item.paid_by}`}
+                      </p>
                     )}
                   </div>
                   <span className="text-base font-bold text-slate-800 flex-shrink-0">
