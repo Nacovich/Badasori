@@ -2,7 +2,6 @@
 
 import { useState } from 'react'
 import { LogOut, User, ChevronDown } from 'lucide-react'
-import { createBrowserClient } from '@supabase/ssr'
 import type { Profile } from '@/types'
 
 interface TopBarProps {
@@ -12,15 +11,6 @@ interface TopBarProps {
 
 export function TopBar({ title, profile }: TopBarProps) {
   const [open, setOpen] = useState(false)
-
-  async function handleLogout() {
-    const supabase = createBrowserClient(
-      process.env.NEXT_PUBLIC_SUPABASE_URL!,
-      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-    )
-    await supabase.auth.signOut()
-    window.location.href = '/login'
-  }
 
   return (
     <header className="bg-slate-900 text-white px-4 py-3 flex items-center justify-between safe-area-top">
@@ -47,13 +37,15 @@ export function TopBar({ title, profile }: TopBarProps) {
                   {profile?.full_name ?? 'Usuario'}
                 </p>
               </div>
-              <button
-                onClick={handleLogout}
-                className="w-full flex items-center gap-2 px-4 py-3 text-sm text-red-600 hover:bg-red-50 transition-colors"
-              >
-                <LogOut className="w-4 h-4" />
-                Cerrar sesión
-              </button>
+              <form method="POST" action="/auth/signout">
+                <button
+                  type="submit"
+                  className="w-full flex items-center gap-2 px-4 py-3 text-sm text-red-600 hover:bg-red-50 transition-colors"
+                >
+                  <LogOut className="w-4 h-4" />
+                  Cerrar sesión
+                </button>
+              </form>
             </div>
           </>
         )}
