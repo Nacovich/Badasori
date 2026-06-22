@@ -8,6 +8,7 @@ import {
   Wrench,
   Receipt,
   BookOpen,
+  BarChart2,
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
@@ -17,6 +18,7 @@ const navItems = [
   { href: '/mantenimiento', label: 'Mant.', icon: Wrench },
   { href: '/gastos', label: 'Gastos', icon: Receipt },
   { href: '/bitacora', label: 'Bitácora', icon: BookOpen },
+  { href: '/informes', label: 'Informes', icon: BarChart2 },
 ]
 
 export function BottomNav() {
