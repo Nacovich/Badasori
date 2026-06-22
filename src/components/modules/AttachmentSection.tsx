@@ -1,5 +1,5 @@
 import { createClient } from '@/lib/supabase/server'
-import { uploadAttachment, deleteAttachment } from '@/lib/attachments'
+import { deleteAttachment } from '@/lib/attachments'
 import { UploadForm } from './UploadForm'
 import { DeleteAttachmentButton } from './DeleteAttachmentButton'
 import { isImage, formatFileSize, BUCKET } from '@/lib/storage'
@@ -40,8 +40,6 @@ export async function AttachmentSection({
     }),
   )
 
-  const boundUpload = uploadAttachment.bind(null, entityType, entityId, boatId, returnUrl)
-
   return (
     <section className="bg-white rounded-2xl border border-slate-100 shadow-sm p-4 space-y-3">
       <div className="flex items-center justify-between">
@@ -51,7 +49,14 @@ export async function AttachmentSection({
             <span className="ml-1.5 text-slate-400 font-normal">({attachments.length})</span>
           )}
         </h3>
-        {canEdit && <UploadForm uploadAction={boundUpload} />}
+        {canEdit && (
+          <UploadForm
+            entityType={entityType}
+            entityId={entityId}
+            boatId={boatId}
+            returnUrl={returnUrl}
+          />
+        )}
       </div>
 
       {attachments.length === 0 && (

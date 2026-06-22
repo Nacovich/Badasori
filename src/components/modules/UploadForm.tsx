@@ -1,62 +1,97 @@
 'use client'
 
-import { useActionState, useEffect, useRef } from 'react'
+import { useState, useRef } from 'react'
 import { useRouter } from 'next/navigation'
-import type { ActionState } from '@/types'
+import { createClient } from '@/lib/supabase/client'
+import { getSignedUploadUrl, registerAttachment } from '@/lib/attachments'
+import { BUCKET } from '@/lib/storage'
+import type { AttachmentEntityType } from '@/types'
+
+const MAX_SIZE = 20 * 1024 * 1024
 
 interface Props {
-  uploadAction: (_prev: ActionState, formData: FormData) => Promise<ActionState>
+  entityType: AttachmentEntityType
+  entityId: string
+  boatId: string
+  returnUrl: string
 }
 
-export function UploadForm({ uploadAction }: Props) {
-  const [state, formAction, pending] = useActionState(uploadAction, {})
+export function UploadForm({ entityType, entityId, boatId, returnUrl }: Props) {
+  const [uploading, setUploading] = useState(false)
+  const [error, setError] = useState<string | null>(null)
   const router = useRouter()
   const galleryRef = useRef<HTMLInputElement>(null)
   const cameraRef = useRef<HTMLInputElement>(null)
 
-  useEffect(() => {
-    if (state.success) {
+  async function handleFile(file: File) {
+    if (file.size > MAX_SIZE) {
+      setError(`El archivo supera 20 MB (${(file.size / 1024 / 1024).toFixed(1)} MB)`)
+      return
+    }
+    setUploading(true)
+    setError(null)
+
+    try {
+      // 1. El servidor genera la URL firmada — el archivo NO pasa por Vercel
+      const urlResult = await getSignedUploadUrl(entityType, entityId, boatId, file.name)
+      if ('error' in urlResult) throw new Error(urlResult.error)
+
+      // 2. El cliente sube directo a Supabase Storage
+      const supabase = createClient()
+      const { error: uploadError } = await supabase.storage
+        .from(BUCKET)
+        .uploadToSignedUrl(urlResult.path, urlResult.token, file, { contentType: file.type })
+      if (uploadError) throw new Error(uploadError.message)
+
+      // 3. El servidor registra el adjunto en la BD
+      const regResult = await registerAttachment(
+        entityType, entityId, boatId, returnUrl,
+        file.name, urlResult.path, file.size, file.type,
+      )
+      if (regResult?.error) throw new Error(regResult.error)
+
       router.refresh()
+    } catch (e) {
+      setError(e instanceof Error ? e.message : 'Error al subir el archivo')
+    } finally {
+      setUploading(false)
       if (galleryRef.current) galleryRef.current.value = ''
       if (cameraRef.current) cameraRef.current.value = ''
     }
-  }, [state.success, router])
+  }
 
   function handleChange(e: React.ChangeEvent<HTMLInputElement>) {
-    if (e.target.files?.length) e.target.form?.requestSubmit()
+    const file = Array.from(e.target.files ?? []).find((f) => f.size > 0)
+    if (file) handleFile(file)
   }
 
   const btnBase =
     'inline-flex items-center gap-1.5 px-3 py-2 rounded-xl text-sm font-medium border transition-colors cursor-pointer select-none'
 
   return (
-    <form action={formAction}>
-      {/* Input galería */}
+    <div>
       <input
         ref={galleryRef}
         id="upload-gallery"
         type="file"
-        name="file"
         className="hidden"
         accept="image/*,.pdf,.doc,.docx,.xls,.xlsx,.txt"
         onChange={handleChange}
-        disabled={pending}
+        disabled={uploading}
       />
-      {/* Input cámara */}
       <input
         ref={cameraRef}
         id="upload-camera"
         type="file"
-        name="file"
         className="hidden"
         accept="image/*"
         capture="environment"
         onChange={handleChange}
-        disabled={pending}
+        disabled={uploading}
       />
 
       <div className="flex gap-2 flex-wrap">
-        {pending ? (
+        {uploading ? (
           <span className={`${btnBase} bg-slate-50 border-slate-200 text-slate-400`}>
             <span className="animate-spin text-base">⏳</span>
             Subiendo…
@@ -81,9 +116,7 @@ export function UploadForm({ uploadAction }: Props) {
         )}
       </div>
 
-      {state.error && (
-        <p className="mt-2 text-sm text-red-600">{state.error}</p>
-      )}
-    </form>
+      {error && <p className="mt-2 text-sm text-red-600">{error}</p>}
+    </div>
   )
 }

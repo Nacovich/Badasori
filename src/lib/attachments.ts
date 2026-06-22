@@ -7,50 +7,56 @@ import { getBoatMembership } from '@/lib/boat'
 import { buildStoragePath, BUCKET } from '@/lib/storage'
 import type { ActionState, AttachmentEntityType } from '@/types'
 
-export async function uploadAttachment(
+// Step 1: server generates a signed upload URL — no file data touches Vercel
+export async function getSignedUploadUrl(
   entityType: AttachmentEntityType,
   entityId: string,
   boatId: string,
-  returnUrl: string,
-  _prev: ActionState,
-  formData: FormData,
-): Promise<ActionState> {
+  fileName: string,
+): Promise<{ path: string; token: string } | { error: string }> {
   const membership = await getBoatMembership()
   if (!membership || membership.role === 'viewer') return { error: 'Sin permisos para subir archivos' }
   if (membership.boat_id !== boatId) return { error: 'Acceso denegado' }
 
-  const file = (formData.getAll('file') as File[]).find((f) => f.size > 0) ?? null
-  if (!file) return { error: 'Selecciona un archivo' }
-  if (file.size > 20 * 1024 * 1024) return { error: 'El archivo no puede superar 20 MB' }
+  const supabase = await createClient()
+  const path = buildStoragePath(boatId, entityType, entityId, fileName)
+
+  const { data, error } = await supabase.storage.from(BUCKET).createSignedUploadUrl(path)
+  if (error || !data) return { error: error?.message ?? 'Error generando URL de subida' }
+
+  return { path: data.path, token: data.token }
+}
+
+// Step 2: after the client uploads directly to Supabase, register the record in DB
+export async function registerAttachment(
+  entityType: AttachmentEntityType,
+  entityId: string,
+  boatId: string,
+  returnUrl: string,
+  fileName: string,
+  filePath: string,
+  fileSize: number,
+  mimeType: string,
+): Promise<ActionState> {
+  const membership = await getBoatMembership()
+  if (!membership || membership.role === 'viewer') return { error: 'Sin permisos' }
+  if (membership.boat_id !== boatId) return { error: 'Acceso denegado' }
 
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
 
-  const path = buildStoragePath(boatId, entityType, entityId, file.name)
-  const buffer = Buffer.from(await file.arrayBuffer())
-
-  const { error: uploadError } = await supabase.storage
-    .from(BUCKET)
-    .upload(path, buffer, { contentType: file.type, upsert: false })
-
-  if (uploadError) return { error: uploadError.message }
-
-  const { error: dbError } = await supabase.from('attachments').insert({
+  const { error } = await supabase.from('attachments').insert({
     boat_id: boatId,
     entity_type: entityType,
     entity_id: entityId,
-    file_name: file.name,
-    file_path: path,
-    file_size: file.size,
-    mime_type: file.type,
+    file_name: fileName,
+    file_path: filePath,
+    file_size: fileSize,
+    mime_type: mimeType,
     created_by: user?.id ?? null,
   })
 
-  if (dbError) {
-    await supabase.storage.from(BUCKET).remove([path])
-    return { error: dbError.message }
-  }
-
+  if (error) return { error: error.message }
   revalidatePath(returnUrl)
   return { success: true }
 }
