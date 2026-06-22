@@ -20,6 +20,15 @@ export default async function InformesPage({
 
   const supabase = await createClient()
 
+  // Socios registrados en el barco
+  const { data: boatData } = await supabase
+    .from('boats')
+    .select('socios')
+    .eq('id', membership.boat_id)
+    .single()
+
+  const socios: string[] = (boatData?.socios as string[] | null)?.filter(Boolean) ?? []
+
   // Gastos del año seleccionado
   const { data } = await supabase
     .from('expenses')
@@ -30,15 +39,6 @@ export default async function InformesPage({
     .order('date', { ascending: true })
 
   const expenses = (data ?? []) as Expense[]
-
-  // Socios únicos de todos los gastos con paid_by (para columnas estables)
-  const { data: allPaid } = await supabase
-    .from('expenses')
-    .select('paid_by')
-    .eq('boat_id', membership.boat_id)
-    .not('paid_by', 'is', null)
-
-  const socios = [...new Set((allPaid ?? []).map((e) => e.paid_by as string))].sort()
 
   // Años disponibles para el selector
   const { data: allDates } = await supabase
@@ -61,7 +61,9 @@ export default async function InformesPage({
 
   const paidPerSocio: Record<string, number> = Object.fromEntries(socios.map((s) => [s, 0]))
   for (const e of expenses) {
-    if (e.paid_by) paidPerSocio[e.paid_by] = (paidPerSocio[e.paid_by] ?? 0) + e.amount
+    if (e.paid_by) {
+      paidPerSocio[e.paid_by] = (paidPerSocio[e.paid_by] ?? 0) + e.amount
+    }
   }
 
   return (
@@ -85,6 +87,12 @@ export default async function InformesPage({
         </div>
       )}
 
+      {socios.length === 0 && (
+        <div className="bg-amber-50 border border-amber-200 rounded-2xl p-4 text-sm text-amber-700">
+          Registra los socios en la sección <strong>Barco</strong> para que el reparto sea correcto.
+        </div>
+      )}
+
       {/* Resumen total */}
       <div className="bg-slate-900 rounded-2xl p-4 space-y-2">
         <div className="flex justify-between items-center">
@@ -92,7 +100,9 @@ export default async function InformesPage({
           <span className="text-white text-xl font-bold">{formatCurrency(total)}</span>
         </div>
         <div className="flex justify-between items-center">
-          <span className="text-slate-400 text-sm">Promedio x socio ({numSocios})</span>
+          <span className="text-slate-400 text-sm">
+            Promedio x socio {numSocios > 1 ? `(entre ${numSocios})` : ''}
+          </span>
           <span className="text-sky-400 font-semibold">{formatCurrency(average)}</span>
         </div>
       </div>
@@ -153,6 +163,7 @@ export default async function InformesPage({
                   <th className="text-left px-3 py-2 text-slate-500 font-medium whitespace-nowrap">Concepto</th>
                   <th className="text-left px-3 py-2 text-slate-500 font-medium whitespace-nowrap">Categoría</th>
                   <th className="text-right px-3 py-2 text-slate-500 font-medium whitespace-nowrap">Importe</th>
+                  <th className="text-left px-3 py-2 text-slate-500 font-medium whitespace-nowrap">Quién</th>
                   {socios.map((s) => (
                     <th key={s} className="text-right px-3 py-2 text-slate-500 font-medium whitespace-nowrap">
                       {s}
@@ -175,6 +186,9 @@ export default async function InformesPage({
                     <td className="px-3 py-2 text-right whitespace-nowrap font-semibold text-slate-900">
                       {formatCurrency(expense.amount)}
                     </td>
+                    <td className="px-3 py-2 whitespace-nowrap text-slate-500">
+                      {expense.paid_by ?? <span className="text-slate-300">—</span>}
+                    </td>
                     {socios.map((s) => (
                       <td
                         key={s}
@@ -192,12 +206,10 @@ export default async function InformesPage({
               </tbody>
               <tfoot>
                 <tr className="bg-slate-50 border-t-2 border-slate-200">
-                  <td colSpan={3} className="px-3 py-2.5 font-bold text-slate-700 sticky left-0 bg-slate-50">
+                  <td colSpan={4} className="px-3 py-2.5 font-bold text-slate-700 sticky left-0 bg-slate-50">
                     TOTAL
                   </td>
-                  <td className="px-3 py-2.5 text-right font-bold text-slate-900">
-                    {formatCurrency(total)}
-                  </td>
+                  <td className="px-3 py-2.5" />
                   {socios.map((s) => (
                     <td key={s} className="px-3 py-2.5 text-right font-bold text-slate-900">
                       {formatCurrency(paidPerSocio[s] ?? 0)}

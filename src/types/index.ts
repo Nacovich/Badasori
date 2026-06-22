@@ -19,6 +19,7 @@ export interface Boat {
   home_port: string | null
   engine_hours: number | null
   observations: string | null
+  socios: string[] | null
   created_at: string
 }
 

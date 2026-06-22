@@ -2,8 +2,10 @@ import { createClient } from '@/lib/supabase/server'
 import { Card, CardHeader, CardTitle } from '@/components/ui/Card'
 import { EmptyState } from '@/components/ui/EmptyState'
 import { AttachmentSection } from '@/components/modules/AttachmentSection'
+import { SociosForm } from '@/components/modules/SociosForm'
 import { formatNumber } from '@/lib/utils'
 import { Anchor } from 'lucide-react'
+import type { Boat } from '@/types'
 
 export default async function BoatPage() {
   const supabase = await createClient()
@@ -16,7 +18,7 @@ export default async function BoatPage() {
     .eq('user_id', user.id)
     .single()
 
-  const boat = membership?.boats as unknown as Record<string, unknown> | null
+  const boat = membership?.boats as unknown as Boat | null
 
   if (!boat) {
     return (
@@ -28,15 +30,17 @@ export default async function BoatPage() {
     )
   }
 
+  const canEdit = membership?.role !== 'viewer'
+
   const fields: { label: string; value: string | null }[] = [
     { label: 'Nombre', value: String(boat.name) },
-    { label: 'Matrícula', value: boat.registration ? String(boat.registration) : null },
-    { label: 'MMSI', value: boat.mmsi ? String(boat.mmsi) : null },
+    { label: 'Matrícula', value: boat.registration ?? null },
+    { label: 'MMSI', value: boat.mmsi ?? null },
     { label: 'Eslora', value: boat.length ? `${formatNumber(Number(boat.length))} m` : null },
     { label: 'Manga', value: boat.beam ? `${formatNumber(Number(boat.beam))} m` : null },
-    { label: 'Puerto base', value: boat.home_port ? String(boat.home_port) : null },
+    { label: 'Puerto base', value: boat.home_port ?? null },
     { label: 'Horas de motor', value: boat.engine_hours != null ? `${Number(boat.engine_hours).toLocaleString('es-ES')} h` : null },
-    { label: 'Observaciones', value: boat.observations ? String(boat.observations) : null },
+    { label: 'Observaciones', value: boat.observations ?? null },
   ]
 
   return (
@@ -45,7 +49,7 @@ export default async function BoatPage() {
         <div className="bg-sky-500 rounded-xl p-2.5">
           <Anchor className="w-5 h-5 text-white" />
         </div>
-        <h2 className="text-xl font-bold text-slate-900">{String(boat.name)}</h2>
+        <h2 className="text-xl font-bold text-slate-900">{boat.name}</h2>
       </div>
 
       <Card>
@@ -64,11 +68,16 @@ export default async function BoatPage() {
         </dl>
       </Card>
 
+      <SociosForm
+        initialSocios={boat.socios ?? []}
+        canEdit={canEdit}
+      />
+
       <AttachmentSection
         entityType="boat"
         entityId={String(boat.id)}
         boatId={String(boat.id)}
-        canEdit={membership?.role !== 'viewer'}
+        canEdit={canEdit}
         canDelete={membership?.role === 'admin'}
         returnUrl="/barco"
         title="Fotos del barco"
