@@ -14,6 +14,13 @@ export interface Boat {
   name: string
   registration: string | null
   mmsi: string | null
+  nib: string | null
+  brand: string | null
+  model: string | null
+  build_year: number | null
+  hull_serial: string | null
+  engine1_serial: string | null
+  engine2_serial: string | null
   length: number | null
   beam: number | null
   home_port: string | null

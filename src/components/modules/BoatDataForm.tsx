@@ -20,8 +20,15 @@ interface Field {
 
 const FIELDS: Field[] = [
   { key: 'name', label: 'Nombre', type: 'text' },
+  { key: 'brand', label: 'Marca', type: 'text' },
+  { key: 'model', label: 'Modelo', type: 'text' },
+  { key: 'build_year', label: 'Año de construcción', type: 'number', step: '1' },
   { key: 'registration', label: 'Matrícula', type: 'text' },
+  { key: 'nib', label: 'N.I.B', type: 'text' },
   { key: 'mmsi', label: 'MMSI', type: 'text' },
+  { key: 'hull_serial', label: 'N/S Casco', type: 'text' },
+  { key: 'engine1_serial', label: 'N/S Motor 1', type: 'text' },
+  { key: 'engine2_serial', label: 'N/S Motor 2', type: 'text' },
   { key: 'length', label: 'Eslora', type: 'number', step: '0.1', unit: 'm' },
   { key: 'beam', label: 'Manga', type: 'number', step: '0.1', unit: 'm' },
   { key: 'home_port', label: 'Puerto base', type: 'text' },
