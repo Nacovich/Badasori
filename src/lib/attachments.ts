@@ -21,7 +21,7 @@ export async function uploadAttachment(
 
   const file = (formData.getAll('file') as File[]).find((f) => f.size > 0) ?? null
   if (!file) return { error: 'Selecciona un archivo' }
-  if (file.size > 10 * 1024 * 1024) return { error: 'El archivo no puede superar 10 MB' }
+  if (file.size > 20 * 1024 * 1024) return { error: 'El archivo no puede superar 20 MB' }
 
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
