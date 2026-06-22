@@ -4,7 +4,7 @@ import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import {
   LayoutDashboard,
-  Anchor,
+  Hammer,
   Wrench,
   Receipt,
   BookOpen,
@@ -14,7 +14,7 @@ import { cn } from '@/lib/utils'
 
 const navItems = [
   { href: '/', label: 'Inicio', icon: LayoutDashboard },
-  { href: '/barco', label: 'Barco', icon: Anchor },
+  { href: '/reparaciones', label: 'Repar.', icon: Hammer },
   { href: '/mantenimiento', label: 'Mant.', icon: Wrench },
   { href: '/gastos', label: 'Gastos', icon: Receipt },
   { href: '/bitacora', label: 'Bitácora', icon: BookOpen },
