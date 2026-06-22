@@ -28,7 +28,7 @@ export async function createFuelLog(
   const total = parseFloat(formData.get('total_cost') as string) || liters * price
 
   const supabase = await createClient()
-  const { error } = await supabase.from('fuel_logs').insert({
+  const { data, error } = await supabase.from('fuel_logs').insert({
     boat_id: membership.boat_id,
     date,
     liters,
@@ -38,11 +38,11 @@ export async function createFuelLog(
     location: str(formData, 'location'),
     paid_by: str(formData, 'paid_by'),
     notes: str(formData, 'notes'),
-  })
+  }).select('id').single()
 
   if (error) return { error: error.message }
   revalidatePath('/repostajes')
-  redirect('/repostajes')
+  redirect(`/repostajes/${data.id}`)
 }
 
 export async function updateFuelLog(

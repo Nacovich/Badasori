@@ -27,7 +27,7 @@ export async function createExpense(
   if (!amount || isNaN(amount)) return { error: 'El importe es obligatorio' }
 
   const supabase = await createClient()
-  const { error } = await supabase.from('expenses').insert({
+  const { data, error } = await supabase.from('expenses').insert({
     boat_id: membership.boat_id,
     date,
     concept,
@@ -36,11 +36,11 @@ export async function createExpense(
     provider: str(formData, 'provider'),
     paid_by: str(formData, 'paid_by'),
     notes: str(formData, 'notes'),
-  })
+  }).select('id').single()
 
   if (error) return { error: error.message }
   revalidatePath('/gastos')
-  redirect('/gastos')
+  redirect(`/gastos/${data.id}`)
 }
 
 export async function updateExpense(
