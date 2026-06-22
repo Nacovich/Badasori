@@ -39,7 +39,7 @@ export default async function DocumentoDetailPage({
   // Generate signed URL for the file if it exists
   let fileUrl: string | null = null
   if (item.file_url) {
-    const { data: signed } = await supabase.storage.from(BUCKET).createSignedUrl(item.file_url, 3600)
+    const { data: signed } = await supabase.storage.from(BUCKET).createSignedUrl(item.file_url, 60 * 60 * 24 * 7)
     fileUrl = signed?.signedUrl ?? null
   }
 
@@ -62,7 +62,7 @@ export default async function DocumentoDetailPage({
           <span className="text-2xl">📄</span>
           <div>
             <p className="text-sm font-medium text-blue-800">Ver / descargar archivo</p>
-            <p className="text-xs text-blue-600 mt-0.5">El enlace expira en 1 hora</p>
+            <p className="text-xs text-blue-600 mt-0.5">Archivo guardado · enlace válido 7 días</p>
           </div>
         </a>
       )}

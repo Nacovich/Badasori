@@ -12,22 +12,20 @@ function str(fd: FormData, key: string): string | null {
   return typeof v === 'string' && v.trim() ? v.trim() : null
 }
 
-async function handleFileUpload(
-  supabase: Awaited<ReturnType<typeof createClient>>,
-  file: File,
-  boatId: string,
-  docId: string,
-): Promise<string | null> {
-  if (!file || file.size === 0) return null
-  if (file.size > 10 * 1024 * 1024) return null
+// Returns a signed upload URL so the browser can upload directly to Supabase
+export async function getDocumentSignedUploadUrl(
+  fileName: string,
+): Promise<{ path: string; token: string } | { error: string }> {
+  const membership = await getBoatMembership()
+  if (!membership || membership.role === 'viewer') return { error: 'Sin permisos para subir archivos' }
 
-  const path = buildStoragePath(boatId, 'documentos', docId, file.name)
-  const buffer = Buffer.from(await file.arrayBuffer())
-  const { error } = await supabase.storage
-    .from(BUCKET)
-    .upload(path, buffer, { contentType: file.type, upsert: true })
+  const supabase = await createClient()
+  const path = buildStoragePath(membership.boat_id, 'documentos', Date.now().toString(), fileName)
 
-  return error ? null : path
+  const { data, error } = await supabase.storage.from(BUCKET).createSignedUploadUrl(path)
+  if (error || !data) return { error: error?.message ?? 'Error generando URL de subida' }
+
+  return { path: data.path, token: data.token }
 }
 
 export async function createDocument(
@@ -42,6 +40,8 @@ export async function createDocument(
   if (!name) return { error: 'El nombre es obligatorio' }
   if (!type) return { error: 'El tipo es obligatorio' }
 
+  const filePath = str(formData, 'file_path')
+
   const supabase = await createClient()
 
   const { data: doc, error: dbErr } = await supabase
@@ -52,19 +52,12 @@ export async function createDocument(
       name,
       expiry_date: str(formData, 'expiry_date'),
       notes: str(formData, 'notes'),
+      file_url: filePath ?? null,
     })
     .select('id')
     .single()
 
   if (dbErr || !doc) return { error: dbErr?.message ?? 'Error al crear documento' }
-
-  const file = formData.get('file') as File | null
-  if (file && file.size > 0) {
-    const path = await handleFileUpload(supabase, file, membership.boat_id, doc.id)
-    if (path) {
-      await supabase.from('documents').update({ file_url: path }).eq('id', doc.id)
-    }
-  }
 
   revalidatePath('/documentos')
   redirect('/documentos')
@@ -83,28 +76,25 @@ export async function updateDocument(
   if (!name) return { error: 'El nombre es obligatorio' }
   if (!type) return { error: 'El tipo es obligatorio' }
 
+  const filePath = str(formData, 'file_path')
+
   const supabase = await createClient()
+
+  const update: Record<string, unknown> = {
+    type,
+    name,
+    expiry_date: str(formData, 'expiry_date'),
+    notes: str(formData, 'notes'),
+  }
+  if (filePath) update.file_url = filePath
 
   const { error: dbErr } = await supabase
     .from('documents')
-    .update({
-      type,
-      name,
-      expiry_date: str(formData, 'expiry_date'),
-      notes: str(formData, 'notes'),
-    })
+    .update(update)
     .eq('id', id)
     .eq('boat_id', membership.boat_id)
 
   if (dbErr) return { error: dbErr.message }
-
-  const file = formData.get('file') as File | null
-  if (file && file.size > 0) {
-    const path = await handleFileUpload(supabase, file, membership.boat_id, id)
-    if (path) {
-      await supabase.from('documents').update({ file_url: path }).eq('id', id)
-    }
-  }
 
   revalidatePath('/documentos')
   redirect(`/documentos/${id}`)
