@@ -1,9 +1,8 @@
 import { createClient } from '@/lib/supabase/server'
-import { Card, CardHeader, CardTitle } from '@/components/ui/Card'
 import { EmptyState } from '@/components/ui/EmptyState'
 import { AttachmentSection } from '@/components/modules/AttachmentSection'
 import { SociosForm } from '@/components/modules/SociosForm'
-import { formatNumber } from '@/lib/utils'
+import { BoatDataForm } from '@/components/modules/BoatDataForm'
 import { Anchor } from 'lucide-react'
 import type { Boat } from '@/types'
 
@@ -30,18 +29,8 @@ export default async function BoatPage() {
     )
   }
 
+  const isAdmin = membership?.role === 'admin'
   const canEdit = membership?.role !== 'viewer'
-
-  const fields: { label: string; value: string | null }[] = [
-    { label: 'Nombre', value: String(boat.name) },
-    { label: 'Matrícula', value: boat.registration ?? null },
-    { label: 'MMSI', value: boat.mmsi ?? null },
-    { label: 'Eslora', value: boat.length ? `${formatNumber(Number(boat.length))} m` : null },
-    { label: 'Manga', value: boat.beam ? `${formatNumber(Number(boat.beam))} m` : null },
-    { label: 'Puerto base', value: boat.home_port ?? null },
-    { label: 'Horas de motor', value: boat.engine_hours != null ? `${Number(boat.engine_hours).toLocaleString('es-ES')} h` : null },
-    { label: 'Observaciones', value: boat.observations ?? null },
-  ]
 
   return (
     <div className="space-y-4">
@@ -52,21 +41,7 @@ export default async function BoatPage() {
         <h2 className="text-xl font-bold text-slate-900">{boat.name}</h2>
       </div>
 
-      <Card>
-        <CardHeader>
-          <CardTitle>Datos del barco</CardTitle>
-        </CardHeader>
-        <dl className="divide-y divide-slate-100">
-          {fields.map(({ label, value }) => (
-            <div key={label} className="flex justify-between py-2.5 gap-4">
-              <dt className="text-sm text-slate-500 flex-shrink-0">{label}</dt>
-              <dd className="text-sm font-medium text-slate-900 text-right">
-                {value ?? <span className="text-slate-300">—</span>}
-              </dd>
-            </div>
-          ))}
-        </dl>
-      </Card>
+      <BoatDataForm boat={boat} isAdmin={isAdmin} />
 
       <SociosForm
         initialSocios={boat.socios ?? []}
@@ -78,7 +53,7 @@ export default async function BoatPage() {
         entityId={String(boat.id)}
         boatId={String(boat.id)}
         canEdit={canEdit}
-        canDelete={membership?.role === 'admin'}
+        canDelete={isAdmin}
         returnUrl="/barco"
         title="Fotos del barco"
       />
