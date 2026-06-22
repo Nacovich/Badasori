@@ -62,7 +62,7 @@ export default async function DocumentoDetailPage({
           <span className="text-2xl">📄</span>
           <div>
             <p className="text-sm font-medium text-blue-800">Ver / descargar archivo</p>
-            <p className="text-xs text-blue-600 mt-0.5">Archivo guardado · enlace válido 7 días</p>
+            <p className="text-xs text-blue-600 mt-0.5">Archivo guardado permanentemente</p>
           </div>
         </a>
       )}
