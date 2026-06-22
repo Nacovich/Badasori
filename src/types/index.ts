@@ -142,6 +142,17 @@ export interface Attachment {
   created_at: string
 }
 
+export interface Regularizacion {
+  id: string
+  boat_id: string
+  date: string
+  year: number
+  from_socio: string
+  to_socio: string
+  amount: number
+  created_at: string
+}
+
 export interface Document {
   id: string
   boat_id: string

@@ -20,7 +20,6 @@ export default async function InformesPage({
 
   const supabase = await createClient()
 
-  // Socios registrados en el barco
   const { data: boatData } = await supabase
     .from('boats')
     .select('socios')
@@ -29,42 +28,59 @@ export default async function InformesPage({
 
   const socios: string[] = (boatData?.socios as string[] | null)?.filter(Boolean) ?? []
 
-  // Gastos del año seleccionado
-  const { data } = await supabase
-    .from('expenses')
-    .select('*')
-    .eq('boat_id', membership.boat_id)
-    .gte('date', `${year}-01-01`)
-    .lte('date', `${year}-12-31`)
-    .order('date', { ascending: true })
+  const [{ data: rawExp }, { data: regData }, { data: allDates }] = await Promise.all([
+    supabase
+      .from('expenses')
+      .select('*')
+      .eq('boat_id', membership.boat_id)
+      .gte('date', `${year}-01-01`)
+      .lte('date', `${year}-12-31`)
+      .order('date', { ascending: true }),
+    supabase
+      .from('regularizaciones')
+      .select('from_socio, to_socio, amount')
+      .eq('boat_id', membership.boat_id)
+      .eq('year', parseInt(year)),
+    supabase
+      .from('expenses')
+      .select('date')
+      .eq('boat_id', membership.boat_id),
+  ])
 
-  const expenses = (data ?? []) as Expense[]
-
-  // Años disponibles
-  const { data: allDates } = await supabase
-    .from('expenses')
-    .select('date')
-    .eq('boat_id', membership.boat_id)
+  const expenses = (rawExp ?? []) as Expense[]
 
   const availableYears = [
     ...new Set((allDates ?? []).map((e) => (e.date as string).substring(0, 4))),
   ].sort().reverse()
-
   if (!availableYears.includes(year) && availableYears.length > 0) {
     availableYears.push(year)
   }
 
-  // Cálculos totales
+  // Totales del año
   const total = expenses.reduce((sum, e) => sum + (e.amount ?? 0), 0)
   const numSocios = socios.length || 1
   const average = total / numSocios
 
+  // Pagado por cada socio en el año
   const paidPerSocio: Record<string, number> = Object.fromEntries(socios.map((s) => [s, 0]))
   for (const e of expenses) {
-    if (e.paid_by) {
-      paidPerSocio[e.paid_by] = (paidPerSocio[e.paid_by] ?? 0) + e.amount
-    }
+    if (e.paid_by) paidPerSocio[e.paid_by] = (paidPerSocio[e.paid_by] ?? 0) + e.amount
   }
+
+  // Regularizaciones del año
+  const regSent: Record<string, number> = Object.fromEntries(socios.map((s) => [s, 0]))
+  const regReceived: Record<string, number> = Object.fromEntries(socios.map((s) => [s, 0]))
+  for (const r of regData ?? []) {
+    regSent[r.from_socio] = (regSent[r.from_socio] ?? 0) + (r.amount as number)
+    regReceived[r.to_socio] = (regReceived[r.to_socio] ?? 0) + (r.amount as number)
+  }
+
+  // Saldo efectivo = (pagado - promedio) + enviado - recibido
+  function effectiveBalance(socio: string): number {
+    return (paidPerSocio[socio] ?? 0) - average + (regSent[socio] ?? 0) - (regReceived[socio] ?? 0)
+  }
+
+  const hasRegularizaciones = (regData ?? []).length > 0
 
   // Agrupación por categoría
   type CatGroup = { total: number; perSocio: Record<string, number> }
@@ -120,11 +136,14 @@ export default async function InformesPage({
         </div>
       </div>
 
-      {/* Balance por socio — sin scroll horizontal */}
+      {/* Balance por socio */}
       {socios.length > 0 && (
         <div className="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden">
-          <div className="px-4 py-3 border-b border-slate-100">
+          <div className="px-4 py-3 border-b border-slate-100 flex items-center justify-between">
             <h3 className="font-semibold text-slate-900 text-sm">Balance por socio</h3>
+            {hasRegularizaciones && (
+              <span className="text-xs text-green-600 font-medium">Regularizado ✓</span>
+            )}
           </div>
           <table className="w-full text-sm">
             <thead>
@@ -137,13 +156,15 @@ export default async function InformesPage({
             <tbody>
               {socios.map((socio) => {
                 const paid = paidPerSocio[socio] ?? 0
-                const balance = paid - average
+                const balance = effectiveBalance(socio)
                 return (
                   <tr key={socio} className="border-b border-slate-50 last:border-0">
                     <td className="px-4 py-2.5 font-semibold text-slate-900">{socio}</td>
                     <td className="px-4 py-2.5 text-right text-slate-600">{formatCurrency(paid)}</td>
-                    <td className={`px-4 py-2.5 text-right font-bold ${balance >= 0 ? 'text-green-600' : 'text-red-500'}`}>
-                      {balance > 0 ? '+' : ''}{formatCurrency(balance)}
+                    <td className={`px-4 py-2.5 text-right font-bold ${
+                      balance > 0.005 ? 'text-green-600' : balance < -0.005 ? 'text-red-500' : 'text-slate-400'
+                    }`}>
+                      {Math.abs(balance) < 0.005 ? '0,00 €' : `${balance > 0 ? '+' : ''}${formatCurrency(balance)}`}
                     </td>
                   </tr>
                 )

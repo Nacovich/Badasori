@@ -30,13 +30,13 @@ export const REPAIR_STATUS_LABEL: Record<string, string> = {
 }
 
 export const EXPENSE_CATEGORIES = [
-  { value: 'mantenimiento', label: 'Mantenimiento' },
-  { value: 'reparacion', label: 'Reparación' },
-  { value: 'pesca', label: 'Pesca' },
-  { value: 'seguridad', label: 'Seguridad' },
-  { value: 'equipamiento', label: 'Equipamiento' },
-  { value: 'marina', label: 'Marina' },
-  { value: 'otros', label: 'Otros' },
+  { value: 'mantenimiento', label: 'Mantenimiento', shortLabel: 'Mant.' },
+  { value: 'reparacion', label: 'Reparación', shortLabel: 'Reparac.' },
+  { value: 'pesca', label: 'Pesca', shortLabel: 'Pesca' },
+  { value: 'seguridad', label: 'Seguridad', shortLabel: 'Segur.' },
+  { value: 'equipamiento', label: 'Equipamiento', shortLabel: 'Equip.' },
+  { value: 'marina', label: 'Marina', shortLabel: 'Marina' },
+  { value: 'otros', label: 'Otros', shortLabel: 'Otros' },
 ]
 
 export const EXPENSE_CATEGORY_LABEL: Record<string, string> = {

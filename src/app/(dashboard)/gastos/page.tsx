@@ -50,44 +50,51 @@ export default async function GastosPage({
         title="Gastos y compras"
         action={
           editor ? (
-            <Link
-              href="/gastos/nueva"
-              className="flex items-center gap-1 bg-sky-500 text-white text-sm font-semibold px-3 py-2 rounded-xl"
-            >
-              <Plus className="w-4 h-4" />
-              Nuevo
-            </Link>
+            <div className="flex gap-2">
+              <Link
+                href="/gastos/nueva"
+                className="flex items-center gap-1 bg-sky-500 text-white text-sm font-semibold px-3 py-2 rounded-xl"
+              >
+                <Plus className="w-4 h-4" />
+                Nuevo
+              </Link>
+              <Link
+                href={`/gastos/regularizacion?year=${new Date().getFullYear()}`}
+                className="flex items-center gap-1 bg-slate-700 text-white text-sm font-semibold px-3 py-2 rounded-xl whitespace-nowrap"
+              >
+                <Plus className="w-4 h-4" />
+                Regulariz.
+              </Link>
+            </div>
           ) : undefined
         }
       />
 
-      {/* Filtro por categoría */}
-      <div className="overflow-x-auto -mx-4 px-4">
-        <div className="flex gap-2 pb-1 w-max">
+      {/* Filtro por categoría — dos líneas, sin scroll */}
+      <div className="flex flex-wrap gap-1.5">
+        <Link
+          href="/gastos"
+          className={`px-2.5 py-1 rounded-full text-xs font-medium whitespace-nowrap transition-colors ${
+            !cat || cat === 'todas'
+              ? 'bg-slate-900 text-white'
+              : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+          }`}
+        >
+          Todas
+        </Link>
+        {EXPENSE_CATEGORIES.map((c) => (
           <Link
-            href="/gastos"
-            className={`px-3 py-1.5 rounded-full text-sm font-medium whitespace-nowrap transition-colors ${
-              !cat || cat === 'todas'
+            key={c.value}
+            href={`/gastos?cat=${c.value}`}
+            className={`px-2.5 py-1 rounded-full text-xs font-medium whitespace-nowrap transition-colors ${
+              cat === c.value
                 ? 'bg-slate-900 text-white'
                 : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
             }`}
           >
-            Todas
+            {c.shortLabel}
           </Link>
-          {EXPENSE_CATEGORIES.map((c) => (
-            <Link
-              key={c.value}
-              href={`/gastos?cat=${c.value}`}
-              className={`px-3 py-1.5 rounded-full text-sm font-medium whitespace-nowrap transition-colors ${
-                cat === c.value
-                  ? 'bg-slate-900 text-white'
-                  : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
-              }`}
-            >
-              {c.label}
-            </Link>
-          ))}
-        </div>
+        ))}
       </div>
 
       {/* Resumen total */}
