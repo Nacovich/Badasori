@@ -9,15 +9,16 @@ import { EXPENSE_CATEGORIES, EXPENSE_CATEGORY_LABEL } from '@/lib/constants'
 import Link from 'next/link'
 import { Plus, Receipt } from 'lucide-react'
 import type { Expense } from '@/types'
+import type { BadgeVariant } from '@/components/ui/Badge'
 
-const CAT_COLORS: Record<string, 'default' | 'info' | 'warning' | 'success' | 'danger'> = {
-  mantenimiento: 'info',
-  reparacion: 'danger',
-  pesca: 'success',
-  seguridad: 'warning',
-  equipamiento: 'info',
-  marina: 'default',
-  otros: 'default',
+const CAT_COLORS: Record<string, BadgeVariant> = {
+  mantenimiento: 'info',      // azul
+  reparacion: 'danger',       // rojo
+  pesca: 'success',           // verde
+  seguridad: 'warning',       // ámbar
+  equipamiento: 'purple',     // violeta
+  marina: 'teal',             // teal
+  otros: 'default',           // gris
 }
 
 export default async function GastosPage({
