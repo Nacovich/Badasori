@@ -30,25 +30,27 @@ export const REPAIR_STATUS_LABEL: Record<string, string> = {
 }
 
 export const EXPENSE_CATEGORIES = [
-  { value: 'gasoil', label: 'Gasoil' },
   { value: 'mantenimiento', label: 'Mantenimiento' },
   { value: 'reparacion', label: 'Reparación' },
   { value: 'pesca', label: 'Pesca' },
   { value: 'seguridad', label: 'Seguridad' },
-  { value: 'documentacion', label: 'Documentación' },
-  { value: 'puerto', label: 'Puerto' },
+  { value: 'equipamiento', label: 'Equipamiento' },
+  { value: 'marina', label: 'Marina' },
   { value: 'otros', label: 'Otros' },
 ]
 
 export const EXPENSE_CATEGORY_LABEL: Record<string, string> = {
-  gasoil: 'Gasoil',
   mantenimiento: 'Mantenimiento',
   reparacion: 'Reparación',
   pesca: 'Pesca',
   seguridad: 'Seguridad',
+  equipamiento: 'Equipamiento',
+  marina: 'Marina',
+  otros: 'Otros',
+  // valores legacy para gastos ya existentes
+  gasoil: 'Gasoil',
   documentacion: 'Documentación',
   puerto: 'Puerto',
-  otros: 'Otros',
 }
 
 export const DOCUMENT_TYPES = [

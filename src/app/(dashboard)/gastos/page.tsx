@@ -11,11 +11,12 @@ import { Plus, Receipt } from 'lucide-react'
 import type { Expense } from '@/types'
 
 const CAT_COLORS: Record<string, 'default' | 'info' | 'warning' | 'success' | 'danger'> = {
-  gasoil: 'warning',
   mantenimiento: 'info',
   reparacion: 'danger',
   pesca: 'success',
-  puerto: 'default',
+  seguridad: 'warning',
+  equipamiento: 'info',
+  marina: 'default',
   otros: 'default',
 }
 
