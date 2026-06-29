@@ -5,6 +5,7 @@ import { Input } from '@/components/ui/Input'
 import { Select } from '@/components/ui/Select'
 import { Textarea } from '@/components/ui/Textarea'
 import { Button } from '@/components/ui/Button'
+import { TimeInput } from '@/components/ui/TimeInput'
 import { WEATHER_OPTIONS } from '@/lib/constants'
 import type { Trip, ActionState } from '@/types'
 
@@ -53,18 +54,16 @@ export function TripForm({ action, item }: Props) {
       </div>
 
       <div className="grid grid-cols-2 gap-3">
-        <Input
+        <TimeInput
           id="departure_time"
           name="departure_time"
           label="Hora salida"
-          type="time"
           defaultValue={item?.departure_time ?? ''}
         />
-        <Input
+        <TimeInput
           id="arrival_time"
           name="arrival_time"
           label="Hora llegada"
-          type="time"
           defaultValue={item?.arrival_time ?? ''}
         />
       </div>
