@@ -25,7 +25,7 @@ export async function createFishingLog(
   if (!species) return { error: 'La especie es obligatoria' }
 
   const supabase = await createClient()
-  const { error } = await supabase.from('fishing_logs').insert({
+  const { data, error } = await supabase.from('fishing_logs').insert({
     boat_id: membership.boat_id,
     date,
     species,
@@ -35,11 +35,11 @@ export async function createFishingLog(
     quantity: formData.get('quantity') ? parseInt(formData.get('quantity') as string) : null,
     catch_and_release: formData.get('catch_and_release') === 'true',
     observations: str(formData, 'observations'),
-  })
+  }).select('id').single()
 
   if (error) return { error: error.message }
   revalidatePath('/pesca')
-  redirect('/pesca')
+  redirect(`/pesca/${data.id}`)
 }
 
 export async function updateFishingLog(
